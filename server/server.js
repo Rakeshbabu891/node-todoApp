@@ -1,5 +1,5 @@
+var {ObjectId}= require('mongodb');
 const express = require('express');
-var ObjectId = require('mongodb').ObjectID;
 var bodyParser = require('body-parser');
 
 
@@ -10,6 +10,7 @@ var {User} = require('./models/user.js');
 var app = express();
 
 app.use(bodyParser.json());
+const PORT = process.env.port || 3000;
 
 app.post('/todos',(req,res) => {
    var newTodo = new Todo({
@@ -31,6 +32,9 @@ app.get('/todos', (req,res) => {
   })
 });
 
+
+
+
 app.get('/todos/:id', (req,res) => {
    var id = req.params.id;
    // if(!ObjectID.isValid(id)){
@@ -45,6 +49,20 @@ app.get('/todos/:id', (req,res) => {
    });
 });
 
-app.listen(3000, () => {
-  console.log('server has been started');
+app.delete('/todos/:id', (req, res) => {
+    var id = req.params.id;
+    // if(!ObjectID.isValid(id)){
+    //   return res.status(404).send();
+    // }
+
+    Todo.findByIdAndRemove(id).then((result) => {
+         console.log(`removed sucessfully ${result}`);
+    },(e) => {
+      console.log('could not find and remove',e);
+    });
+
+});
+
+app.listen(PORT, () => {
+  console.log(`Server has been started at : ${PORT}`);
 });
