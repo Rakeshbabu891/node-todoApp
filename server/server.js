@@ -1,4 +1,5 @@
 const express = require('express');
+var ObjectId = require('mongodb').ObjectID;
 var bodyParser = require('body-parser');
 
 
@@ -28,6 +29,20 @@ app.get('/todos', (req,res) => {
   },(e) => {
     res.status(400).send(e);
   })
+});
+
+app.get('/todos/:id', (req,res) => {
+   var id = req.params.id;
+   // if(!ObjectID.isValid(id)){
+   //   return res.status(404).send();
+   // }
+   User.findById(id).then((doc) => {
+     console.log('Connected to data base:',doc);
+   },(e) => {
+     console.log('could not find id');
+   }).catch((e) => {
+     res.status(404).send();
+   });
 });
 
 app.listen(3000, () => {
