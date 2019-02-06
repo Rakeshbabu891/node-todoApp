@@ -1,6 +1,7 @@
 var {ObjectId}= require('mongodb');
 const express = require('express');
 var bodyParser = require('body-parser');
+const _ = require('lodash');
 
 
 var {mongoose} = require('./db/mongoose.js');
@@ -60,6 +61,37 @@ app.delete('/todos/:id', (req, res) => {
     },(e) => {
       console.log('could not find and remove',e);
     });
+
+});
+
+app.patch('/todos/:id', (req, res) => {
+   var id = req.params.id;
+   var body = _.pick(req.body, ['completed', 'text']);
+
+console.log(`${_.isBoolean(body.completed)},${body.completed}`)
+
+    if(_.isBoolean(body.completed) && body.completed){
+      console.log('in side if condition')
+      body.completedAt = new Date().getTime();
+    }
+    else{
+          console.log('inside else condition');
+           body.completed = false;
+           body.completedAt = null;
+        }
+
+  Todo.findByIdAndUpdate(id, {
+     $set:body
+  },{
+    new:true
+  }).then((result) => {
+    console.log('updated sucessfully',result)
+    res.send(result);
+  },(e) => {
+    console.log('could not update');
+  });
+
+
 
 });
 
