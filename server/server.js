@@ -7,6 +7,7 @@ const _ = require('lodash');
 var {mongoose} = require('./db/mongoose.js');
 var {Todo} = require('./models/todo.js');
 var {User} = require('./models/user.js');
+var {authendicate} = require('./middleware/authendicate.js')
 
 var app = express();
 
@@ -97,11 +98,16 @@ var body = _.pick(req.body, ['email', 'password']);
 
 var user = new User(body);
 
-user.save().then((result) => {
+user.save().then(() => {
   return user.generateAuthToken();
 }).then((token) => {
-   res.header('x-auth', token).send(user);
+   res.header('x-auth',token).send(token);
 });
+
+});
+
+app.get('/user/me', authendicate, (req, res) => {
+  res.send(req.user);
 
 });
 

@@ -23,7 +23,7 @@ var UserSchema  = new mongoose.Schema({
     minlength:6,
     required:true
   },
-  token:[{
+  tokens:[{
     access:{
       type:String,
       required:true
@@ -47,11 +47,30 @@ UserSchema.methods.generateAuthToken = function(){
    var user = this;
    var access = 'auth';
    var token = jwt.sign({_id:user._id.toHexString(), access},'abc123').toString();
-    user.token.push({access, token});
+    user.tokens.push({access, token});
 
-    user.save().then(() => {
-       return token
-    })
+    return user.save().then(() => {
+       return token;
+    });
+};
+
+UserSchema.statics.findByToken = function(token){
+  var User = this;
+  var decode;
+  try{
+     console.log('try is working');
+     decode = jwt.verify(token, 'abc123');
+    console.log(`decoded:${decode._id}`);
+  }catch(e)
+  {  console.log('catch is working');
+     return Promise.reject();
+  }
+  return User.findOne({
+    '_id':decode._id,
+    'tokens.token':token,
+    'tokens.access':'auth'
+
+  });
 };
 
 
