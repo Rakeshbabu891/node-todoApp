@@ -90,8 +90,18 @@ console.log(`${_.isBoolean(body.completed)},${body.completed}`)
   },(e) => {
     console.log('could not update');
   });
+});
 
+app.post('/user', (req,res) => {
+var body = _.pick(req.body, ['email', 'password']);
 
+var user = new User(body);
+
+user.save().then((result) => {
+  return user.generateAuthToken();
+}).then((token) => {
+   res.header('x-auth', token).send(user);
+});
 
 });
 
